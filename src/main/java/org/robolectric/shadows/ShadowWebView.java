@@ -1,11 +1,13 @@
 package org.robolectric.shadows;
 
+import android.view.ViewGroup;
 import android.webkit.TestWebSettings;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import org.fest.reflect.field.Invoker;
+import org.robolectric.annotation.RealObject;
 import org.robolectric.internal.HiddenApi;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
@@ -21,6 +23,9 @@ import static org.fest.reflect.core.Reflection.field;
 @Implements(value = WebView.class, inheritImplementationMethods = true)
 public class ShadowWebView extends ShadowAbsoluteLayout {
   public static boolean DEBUG = false;
+
+  @RealObject
+  private WebView realWebView;
 
   private String lastUrl;
   private HashMap<String, Object> javascriptInterfaces = new HashMap<String, Object>();
@@ -70,6 +75,11 @@ public class ShadowWebView extends ShadowAbsoluteLayout {
       });
       mProviderField.set(provider);
     }
+  }
+
+  @Implementation
+  public void setLayoutParams(ViewGroup.LayoutParams params) {
+    field("mLayoutParams").ofType(ViewGroup.LayoutParams.class).in(realWebView).set(params);
   }
 
   private Object nullish(Method method) {
